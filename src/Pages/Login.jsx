@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import logo from "../../Assets/logo.png"
-import { supabase } from "../../Services/Supabase"
+import logo from "../Assets/logo.png"
+import { supabase } from "../Services/Supabase"
 
 function Login() {
   const [email, setEmail] = useState("")
@@ -41,20 +41,22 @@ function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-8">
+    <div className="flex min-h-screen items-center justify-center bg-[#F8F4F0] px-4 py-8">
 
-      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-lg">
+      <div className="w-full max-w-md rounded-2xl border border-[#E5D5C8] bg-white p-8 shadow-lg">
 
         {/* School Header */}
         <div className="mb-8 text-center">
 
-          <img
-            src={logo}
-            alt="FADL-UR-RAHMAN Nursery & Primary School Logo"
-            className="mx-auto mb-3 h-24 w-24 rounded-full object-contain"
-          />
+          <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-[#F3E8DC] bg-white">
+            <img
+              src={logo}
+              alt="FADL-UR-RAHMAN Nursery & Primary School Logo"
+              className="h-full w-full object-contain"
+            />
+          </div>
 
-          <h1 className="text-2xl font-bold text-blue-900">
+          <h1 className="text-2xl font-bold text-[#5C3317]">
             FADL-UR-RAHMAN
           </h1>
 
@@ -67,7 +69,7 @@ function Login() {
         {/* Login Header */}
         <div className="mb-6">
 
-          <h2 className="mb-2 text-2xl font-semibold text-gray-800">
+          <h2 className="mb-2 text-2xl font-semibold text-[#3E210E]">
             Welcome Back
           </h2>
 
@@ -83,7 +85,7 @@ function Login() {
           {/* Email */}
           <div className="mb-5">
 
-            <label className="mb-2 block text-sm font-semibold text-gray-700">
+            <label className="mb-2 block text-sm font-semibold text-[#3E210E]">
               Email
             </label>
 
@@ -92,7 +94,7 @@ function Login() {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-blue-800 focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-lg border border-[#D8C4B5] px-4 py-3 text-sm outline-none transition focus:border-[#5C3317] focus:ring-2 focus:ring-[#F3E8DC]"
             />
 
           </div>
@@ -100,7 +102,7 @@ function Login() {
           {/* Password */}
           <div className="mb-5">
 
-            <label className="mb-2 block text-sm font-semibold text-gray-700">
+            <label className="mb-2 block text-sm font-semibold text-[#3E210E]">
               Password
             </label>
 
@@ -109,7 +111,7 @@ function Login() {
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-blue-800 focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-lg border border-[#D8C4B5] px-4 py-3 text-sm outline-none transition focus:border-[#5C3317] focus:ring-2 focus:ring-[#F3E8DC]"
             />
 
           </div>
@@ -125,7 +127,7 @@ function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-blue-900 py-3 font-semibold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-lg bg-[#5C3317] py-3 font-semibold text-white transition hover:bg-[#3E210E] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? "Logging in..." : "Login"}
           </button>
