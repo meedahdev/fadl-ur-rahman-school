@@ -1,15 +1,14 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import logo from "../Assets/logo.png"
 import { supabase } from "../Services/Supabase"
 
 function Login() {
+  const navigate = useNavigate()
+
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-
-  const navigate = useNavigate()
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -23,116 +22,155 @@ function Login() {
 
     setLoading(true)
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    try {
+      // Login with Supabase Authentication
+      const { data, error: loginError } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
 
-    setLoading(false)
+      if (loginError) {
+        setError(loginError.message)
+        setLoading(false)
+        return
+      }
 
-    if (error) {
-      setError(error.message)
-      return
+      // Get logged-in user's profile
+      const { data: profile, error: profileError } =
+        await supabase
+          .from("profiles")
+          .select("id, full_name, role")
+          .eq("id", data.user.id)
+          .single()
+
+      if (profileError) {
+        console.error("Profile error:", profileError)
+
+        // Sign the user out if their profile cannot be found
+        await supabase.auth.signOut()
+
+        setError("Unable to load your account information.")
+        setLoading(false)
+        return
+      }
+
+      // Admin, Teacher, and Student all use the same Dashboard
+      if (
+        profile.role === "admin" ||
+        profile.role === "teacher" ||
+        profile.role === "student"
+      ) {
+        navigate("/dashboard")
+      } else {
+        await supabase.auth.signOut()
+        setError("Your account does not have a valid role.")
+      }
+
+    } catch (error) {
+      console.error("Login error:", error)
+      setError("Something went wrong. Please try again.")
     }
 
-    console.log("Login successful:", data)
-
-    navigate("/dashboard")
+    setLoading(false)
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#F8F4F0] px-4 py-8">
+    <div className="min-h-screen bg-[#F8F4F0] flex items-center justify-center px-4">
 
-      <div className="w-full max-w-md rounded-2xl border border-[#E5D5C8] bg-white p-8 shadow-lg">
+      <div className="w-full max-w-md">
 
         {/* School Header */}
         <div className="mb-8 text-center">
 
-          <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-[#F3E8DC] bg-white">
-            <img
-              src={logo}
-              alt="FADL-UR-RAHMAN Nursery & Primary School Logo"
-              className="h-full w-full object-contain"
-            />
-          </div>
-
-          <h1 className="text-2xl font-bold text-[#5C3317]">
+          <h1 className="text-3xl font-extrabold uppercase tracking-wide text-[#5C3317]">
             FADL-UR-RAHMAN
           </h1>
 
-          <p className="text-sm text-gray-500">
+          <h2 className="mt-1 font-bold uppercase text-gray-700">
             Nursery & Primary School
-          </p>
-
-        </div>
-
-        {/* Login Header */}
-        <div className="mb-6">
-
-          <h2 className="mb-2 text-2xl font-semibold text-[#3E210E]">
-            Welcome Back
           </h2>
 
-          <p className="text-sm text-gray-500">
-            Login to access the school management system
+          <p className="mt-2 text-sm text-[#7A5A43]">
+            Knowledge, Integrity & Power
           </p>
 
         </div>
 
-        {/* Login Form */}
-        <form onSubmit={handleLogin}>
+        {/* Login Card */}
+        <div className="rounded-2xl bg-white p-8 shadow-lg">
 
-          {/* Email */}
-          <div className="mb-5">
+          <div className="mb-6">
 
-            <label className="mb-2 block text-sm font-semibold text-[#3E210E]">
-              Email
-            </label>
+            <h2 className="text-2xl font-bold text-[#5C3317]">
+              Welcome Back
+            </h2>
 
-            <input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-[#D8C4B5] px-4 py-3 text-sm outline-none transition focus:border-[#5C3317] focus:ring-2 focus:ring-[#F3E8DC]"
-            />
-
-          </div>
-
-          {/* Password */}
-          <div className="mb-5">
-
-            <label className="mb-2 block text-sm font-semibold text-[#3E210E]">
-              Password
-            </label>
-
-            <input
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-[#D8C4B5] px-4 py-3 text-sm outline-none transition focus:border-[#5C3317] focus:ring-2 focus:ring-[#F3E8DC]"
-            />
+            <p className="mt-1 text-sm text-gray-500">
+              Login to access your school account.
+            </p>
 
           </div>
 
           {/* Error */}
           {error && (
-            <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+            <div className="mb-5 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
               {error}
-            </p>
+            </div>
           )}
 
-          {/* Login Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-[#5C3317] py-3 font-semibold text-white transition hover:bg-[#3E210E] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {loading ? "Logging in..." : "Login"}
-          </button>
+          <form onSubmit={handleLogin}>
 
-        </form>
+            {/* Email */}
+            <div className="mb-5">
+
+              <label className="mb-2 block text-sm font-semibold text-gray-700">
+                Email Address
+              </label>
+
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="w-full rounded-lg border border-[#D8C4B5] px-4 py-3 outline-none transition focus:border-[#5C3317] focus:ring-2 focus:ring-[#F3E8DC]"
+              />
+
+            </div>
+
+            {/* Password */}
+            <div className="mb-6">
+
+              <label className="mb-2 block text-sm font-semibold text-gray-700">
+                Password
+              </label>
+
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                className="w-full rounded-lg border border-[#D8C4B5] px-4 py-3 outline-none transition focus:border-[#5C3317] focus:ring-2 focus:ring-[#F3E8DC]"
+              />
+
+            </div>
+
+            {/* Login Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-lg bg-[#5C3317] px-5 py-3 font-semibold text-white transition hover:bg-[#3E210E] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading ? "Logging in..." : "Login"}
+            </button>
+
+          </form>
+
+        </div>
+
+        <p className="mt-6 text-center text-xs text-gray-400">
+          © {new Date().getFullYear()} Fadl-Ur-Rahman Nursery & Primary School
+        </p>
 
       </div>
 

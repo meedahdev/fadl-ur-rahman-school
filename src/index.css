@@ -8,3 +8,33 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
 }
+
+@media print {
+  body {
+    background: white;
+  }
+
+  /* Hide everything by default */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Show only the report */
+  .print-report,
+  .print-report * {
+    visibility: visible;
+  }
+
+  .print-report {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: white;
+  }
+
+  /* Hide buttons when printing */
+  .no-print {
+    display: none !important;
+  }
+}

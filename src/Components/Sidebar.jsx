@@ -1,62 +1,146 @@
 import { NavLink, useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react"
 import { supabase } from "../Services/Supabase"
 import logo from "../Assets/logo.png"
 
 function Sidebar() {
   const navigate = useNavigate()
+  const [role, setRole] = useState(null)
+
+  useEffect(() => {
+    const getRole = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user) return
+
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single()
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+      setRole(profile.role)
+    }
+
+    getRole()
+  }, [])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
     navigate("/")
   }
 
-  const links = [
-    {
-      name: "Dashboard",
-      path: "/dashboard",
-      icon: "🏠",
-    },
-    {
-      name: "Students",
-      path: "/students",
-      icon: "👨‍🎓",
-    },
-    {
-      name: "Teachers",
-      path: "/teachers",
-      icon: "👩‍🏫",
-    },
-    {
-      name: "Classes",
-      path: "/classes",
-      icon: "🏫",
-    },
-    {
-      name: "Attendance",
-      path: "/attendance",
-      icon: "📅",
-    },
-    {
-      name: "Results",
-      path: "/results",
-      icon: "📚",
-    },
-    {
-      name: "Fees",
-      path: "/fees",
-      icon: "💰",
-    },
-    {
-      name: "Settings",
-      path: "/settings",
-      icon: "⚙️",
-    },
-  ]
+  let links = []
+
+  // ADMIN
+  if (role === "admin") {
+    links = [
+      {
+        name: "Dashboard",
+        path: "/dashboard",
+        icon: "🏠",
+      },
+      {
+        name: "Students",
+        path: "/students",
+        icon: "👨‍🎓",
+      },
+      {
+        name: "Teachers",
+        path: "/teachers",
+        icon: "👩‍🏫",
+      },
+      {
+        name: "Classes",
+        path: "/classes",
+        icon: "🏫",
+      },
+      {
+        name: "Attendance",
+        path: "/attendance",
+        icon: "📅",
+      },
+      {
+        name: "Results",
+        path: "/results",
+        icon: "📚",
+      },
+      {
+        name: "Settings",
+        path: "/settings",
+        icon: "⚙️",
+      },
+    ]
+  }
+
+  // TEACHER
+  if (role === "teacher") {
+    links = [
+      {
+        name: "Dashboard",
+        path: "/dashboard",
+        icon: "🏠",
+      },
+      {
+        name: "Students",
+        path: "/students",
+        icon: "👨‍🎓",
+      },
+      {
+        name: "Attendance",
+        path: "/attendance",
+        icon: "📅",
+      },
+      {
+        name: "Results",
+        path: "/results",
+        icon: "📚",
+      },
+      {
+        name: "Settings",
+        path: "/settings",
+        icon: "⚙️",
+      },
+    ]
+  }
+
+  // STUDENT
+  if (role === "student") {
+    links = [
+      {
+        name: "Dashboard",
+        path: "/dashboard",
+        icon: "🏠",
+      },
+      {
+        name: "Attendance",
+        path: "/attendance",
+        icon: "📅",
+      },
+      {
+        name: "Results",
+        path: "/results",
+        icon: "📚",
+      },
+      {
+        name: "Settings",
+        path: "/settings",
+        icon: "⚙️",
+      },
+    ]
+  }
 
   return (
     <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col bg-[#5C3317] text-white">
 
-      {/* School Logo */}
+      {/* Logo */}
       <div className="border-b border-[#75451F] p-5">
 
         <div className="flex items-center gap-3">
@@ -125,7 +209,9 @@ function Sidebar() {
           onClick={handleLogout}
           className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-[#F5EDE6] transition hover:bg-red-600 hover:text-white"
         >
-          <span className="text-lg">🚪</span>
+          <span className="text-lg">
+            🚪
+          </span>
 
           <span>
             Logout
